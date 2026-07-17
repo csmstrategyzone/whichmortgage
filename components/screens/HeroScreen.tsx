@@ -54,7 +54,7 @@ export default function HeroScreen({ onStart }: { onStart: () => void }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.9 }}
-          className="relative h-[300px] w-full overflow-hidden md:absolute md:right-0 md:top-0 md:h-full md:w-[60%]"
+          className="relative h-[300px] w-full overflow-hidden md:absolute md:right-0 md:top-0 md:h-full md:w-[65%]"
           style={{
             background:
               "linear-gradient(135deg, #E8D5B7 0%, #D9B892 45%, #B88E5D 100%)",
@@ -64,8 +64,9 @@ export default function HeroScreen({ onStart }: { onStart: () => void }) {
             src="/hero-couple.jpg"
             alt="Happy Irish couple at home"
             fill
-            priority
-            sizes="(max-width: 768px) 100vw, 60vw"
+            priority={true}
+            quality={95}
+            sizes="(max-width: 768px) 100vw, 70vw"
             className="kenburns hero-photo"
             style={{ objectFit: "cover" }}
           />
