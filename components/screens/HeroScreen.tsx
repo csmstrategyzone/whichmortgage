@@ -1,124 +1,189 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import gsap from "gsap";
-import { ArrowRight } from "lucide-react";
-import LogoMark from "@/components/LogoMark";
-import GeorgianDoor from "@/components/GeorgianDoor";
+import { useState } from "react";
+import Image from "next/image";
+import { motion } from "framer-motion";
+import { ArrowRight, Menu } from "lucide-react";
+
+const PHOTOS = [
+  "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=1200&q=85",
+  "https://images.unsplash.com/photo-1595877991389-3c62be2fac2c?w=1200&q=85",
+  "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=85",
+];
+
+const NAV = ["Mortgages", "Switch mortgage", "Schemes", "Guides"];
+
+const rise = (y: number, delay: number, duration: number) => ({
+  initial: { opacity: 0, y },
+  animate: { opacity: 1, y: 0 },
+  transition: { delay, duration, ease: "easeOut" as const },
+});
 
 export default function HeroScreen({ onStart }: { onStart: () => void }) {
-  const root = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    const reduce = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-    if (reduce || !root.current) return;
-
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: "expo.out" } });
-      tl.from(".line-inner", { yPercent: 110, duration: 1, stagger: 0.15 })
-        .from(
-          ".accent",
-          { opacity: 0, scale: 0.92, duration: 0.8, ease: "power2.out" },
-          "+=0.1"
-        )
-        .from(
-          ".fade-up",
-          { opacity: 0, y: 18, duration: 0.7, stagger: 0.12 },
-          "+=0.05"
-        );
-    }, root);
-    return () => ctx.revert();
-  }, []);
+  const [idx, setIdx] = useState(0);
+  const [failed, setFailed] = useState(false);
 
   return (
-    <section
-      ref={root}
-      className="relative min-h-dvh w-full overflow-hidden"
-      style={{
-        background:
-          "radial-gradient(ellipse 55% 70% at 78% 55%, rgba(242,107,31,0.28) 0%, transparent 55%), radial-gradient(ellipse 80% 100% at 20% 30%, rgba(46,95,232,0.12) 0%, transparent 60%), #06122F",
-      }}
-    >
-      {/* grain overlay */}
-      <svg
-        className="pointer-events-none absolute inset-0 h-full w-full"
-        style={{ opacity: 0.15, mixBlendMode: "overlay" }}
-        aria-hidden
-      >
-        <filter id="hero-grain">
-          <feTurbulence baseFrequency="0.9" numOctaves="2" />
-        </filter>
-        <rect width="100%" height="100%" filter="url(#hero-grain)" />
-      </svg>
-
-      {/* top nav — absolute, outside the grid */}
-      <nav className="absolute inset-x-0 top-0 z-20 flex items-center justify-between px-6 py-6 md:px-[60px]">
-        <LogoMark tone="light" />
-        <button
-          onClick={onStart}
-          className="rounded-full border border-white/15 px-4 py-2 text-[13px] font-medium text-white/80 transition-colors hover:border-white/40 hover:text-white"
-        >
-          Get started
-        </button>
+    <section className="flex min-h-dvh w-full flex-col bg-[#0A2472]">
+      {/* top nav */}
+      <nav className="flex items-center justify-between bg-[#F5F0E8] px-6 py-5 md:px-10">
+        <Logo />
+        <div className="hidden items-center gap-7 lg:flex">
+          {NAV.map((l) => (
+            <button
+              key={l}
+              className="text-[14px] font-medium text-[#0A2472] transition-opacity hover:opacity-60"
+            >
+              {l} <span className="text-[10px]">▾</span>
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={onStart}
+            className="hidden rounded-full border border-[#0A2472]/40 px-4 py-2 text-[14px] font-medium text-[#0A2472] transition-colors hover:bg-[#0A2472]/5 sm:inline-flex"
+          >
+            Log in →
+          </button>
+          <button
+            onClick={onStart}
+            className="rounded-full bg-orange px-4 py-2 text-[14px] font-medium text-white transition-colors hover:bg-[#ff7d33]"
+          >
+            Get started →
+          </button>
+          <button className="text-[#0A2472] lg:hidden" aria-label="Menu">
+            <Menu className="h-5 w-5" />
+          </button>
+        </div>
       </nav>
 
-      {/* centered grid */}
-      <div className="relative z-10 mx-auto grid min-h-dvh max-w-[1400px] grid-cols-1 items-center gap-[60px] px-6 py-24 md:grid-cols-2 md:px-[60px] md:py-10">
-        {/* door column (right on desktop, above text on mobile) */}
-        <div className="flex justify-center md:order-2">
-          <GeorgianDoor className="float h-auto w-[250px] max-h-[68vh] md:w-[380px]" />
-        </div>
-
-        {/* text column */}
-        <div className="flex flex-col md:order-1">
-          {/* pill */}
-          <div className="fade-up mb-7 inline-flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3.5 py-1.5 text-[12px] font-medium text-white/80">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-orange opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-orange" />
-            </span>
-            For first-time buyers · Ireland
-          </div>
-
-          {/* headline */}
-          <h1
-            className="h max-w-[520px] text-white"
-            style={{ fontSize: "clamp(44px, 6vw, 72px)", lineHeight: 1.05 }}
+      {/* hero split */}
+      <div className="grid flex-1 grid-cols-1 md:min-h-[620px] md:grid-cols-[55%_45%]">
+        {/* LEFT — navy editorial */}
+        <div className="order-2 flex flex-col justify-center px-6 py-14 md:order-1 md:px-[60px] md:py-[70px]">
+          <motion.p
+            {...rise(24, 0.1, 0.7)}
+            className="mb-8 italic text-[#F4A574]"
+            style={{ fontFamily: "var(--font-fraunces)", fontWeight: 400, fontSize: "22px" }}
           >
-            <span className="block overflow-hidden">
-              <span className="line-inner block">Your first Irish home,</span>
-            </span>
-            <span className="block overflow-hidden">
-              <span
-                className="accent serif-italic block text-orange"
-                style={{ fontSize: "clamp(48px, 6.4vw, 76px)", lineHeight: 1.1 }}
-              >
-                unlocked.
-              </span>
-            </span>
+            Ireland&apos;s smartest
+          </motion.p>
+
+          <h1
+            style={{
+              fontFamily: "var(--font-fraunces)",
+              lineHeight: 0.95,
+              letterSpacing: "-0.03em",
+            }}
+            className="mb-11"
+          >
+            <motion.span
+              {...rise(24, 0.25, 0.8)}
+              className="block text-orange"
+              style={{ fontWeight: 500, fontSize: "clamp(44px, 5.4vw, 76px)" }}
+            >
+              You don&apos;t need to
+            </motion.span>
+            <motion.span
+              {...rise(24, 0.4, 0.8)}
+              className="block text-orange"
+              style={{ fontWeight: 500, fontSize: "clamp(44px, 5.4vw, 76px)" }}
+            >
+              know the schemes.
+            </motion.span>
+            <motion.span
+              {...rise(24, 0.6, 0.9)}
+              className="block italic text-[#2E5FE8]"
+              style={{ fontWeight: 500, fontSize: "clamp(48px, 6vw, 84px)" }}
+            >
+              We do.
+            </motion.span>
           </h1>
 
-          <p className="fade-up mt-7 max-w-[400px] text-[16px] leading-relaxed text-white/70">
-            Six questions. Ninety seconds. The Irish government might hand you
-            €30,000 by the end.
-          </p>
+          <motion.p
+            {...rise(14, 0.85, 0.7)}
+            className="mb-11 max-w-[480px] text-[15px] text-white/80"
+            style={{ lineHeight: 1.65 }}
+          >
+            Answer six questions and we&apos;ll show you exactly what you can
+            borrow, which Irish schemes you qualify for — Help to Buy, First
+            Home, Fresh Start — and where in Ireland you can actually afford to
+            live. Ninety seconds, no credit check.
+          </motion.p>
 
-          <div className="fade-up mt-9 flex flex-wrap items-center gap-5">
+          <motion.div {...rise(14, 1, 0.7)}>
             <button
               onClick={onStart}
-              className="group inline-flex items-center gap-2.5 rounded-full bg-orange px-8 py-4 text-[15px] font-medium text-white shadow-[0_18px_45px_-12px_rgba(242,107,31,0.7)] transition-colors hover:bg-[#ff7d33]"
+              className="group inline-flex items-center gap-2 rounded-full border-[1.5px] border-orange px-[30px] py-4 text-[14px] font-medium text-orange transition-colors hover:bg-orange hover:text-white"
             >
               Begin assessment
-              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1.5" />
+              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-[5px]" />
             </button>
-            <p className="text-[13px] text-white/50">
-              90 seconds · no credit check
-            </p>
-          </div>
+          </motion.div>
         </div>
+
+        {/* RIGHT — full-bleed photo */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3, duration: 0.9 }}
+          className="relative order-1 h-[300px] overflow-hidden md:order-2 md:h-auto"
+        >
+          {failed ? (
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  "linear-gradient(135deg, #E8D5B7 0%, #D9B892 45%, #B88E5D 100%)",
+              }}
+            />
+          ) : (
+            <Image
+              key={idx}
+              src={PHOTOS[idx]}
+              alt="A Georgian front door in Dublin"
+              fill
+              priority
+              sizes="(max-width: 768px) 100vw, 45vw"
+              className="kenburns object-cover"
+              onError={() =>
+                idx < PHOTOS.length - 1 ? setIdx(idx + 1) : setFailed(true)
+              }
+            />
+          )}
+
+          {/* regulator badge */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.4, duration: 0.6 }}
+            className="absolute bottom-4 left-4 inline-flex items-center gap-2 rounded-full bg-white/92 px-3.5 py-2 backdrop-blur"
+          >
+            <span className="h-2 w-2 rounded-full bg-[#2F9E63]" />
+            <span className="text-[11px] font-medium text-[#0A2472]">
+              Regulated by Central Bank of Ireland
+            </span>
+          </motion.div>
+        </motion.div>
       </div>
     </section>
+  );
+}
+
+/* Nav logo — orange house + "WhichMortgage" wordmark */
+function Logo() {
+  return (
+    <div className="flex items-center gap-2">
+      <svg viewBox="0 0 24 24" className="h-6 w-6" aria-hidden>
+        <path
+          d="M12 3 L21 11 L18.5 11 L18.5 20 L14 20 L14 14 L10 14 L10 20 L5.5 20 L5.5 11 L3 11 Z"
+          fill="#F26B1F"
+        />
+      </svg>
+      <span style={{ fontWeight: 700, fontSize: "18px", letterSpacing: "-0.01em" }}>
+        <span className="text-[#0A2472]">Which</span>
+        <span className="text-orange">Mortgage</span>
+      </span>
+    </div>
   );
 }

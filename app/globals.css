@@ -15,7 +15,7 @@
   --color-paper: #ffffff;
 
   --font-sans: var(--font-inter);
-  --font-serif: var(--font-instrument);
+  --font-serif: var(--font-fraunces);
 }
 
 :root {
@@ -90,23 +90,22 @@ input[type="number"] {
   appearance: textfield;
 }
 
-/* Slow float for the hero door */
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0);
+/* Ken Burns zoom for the hero photograph */
+@keyframes kenburns {
+  from {
+    transform: scale(1);
   }
-  50% {
-    transform: translateY(-8px);
+  to {
+    transform: scale(1.05);
   }
 }
-.float {
-  animation: float 6s ease-in-out infinite;
+.kenburns {
+  animation: kenburns 20s ease-in-out infinite alternate;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .cursor-blink,
-  .float {
+  .kenburns {
     animation: none;
   }
 }
