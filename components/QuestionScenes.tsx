@@ -36,12 +36,17 @@ export default function QuestionScene({
   );
 }
 
-/* Q1 — bar chart filling upward + "4× rule" callout */
+/* Q1 — bar chart filling upward + "4× rule" callout above the tallest bar */
 function IncomeScene() {
   const bars = [42, 66, 54, 92, 120];
+  const easeOutQuart = [0.165, 0.84, 0.44, 1] as const;
+  const tallestX = 30 + 3 * 34 + 11; // centre of the tallest bar = 143
+  const tallestTop = 150 - 120; // 30
+
   return (
-    <svg viewBox="0 0 220 190" className="w-full">
-      <line x1="20" y1="150" x2="200" y2="150" stroke={NAVY} strokeWidth="1" opacity="0.3" />
+    // extra headroom above the bars so the callout never overlaps them
+    <svg viewBox="0 -46 220 236" className="w-full">
+      <line x1="20" y1="150" x2="200" y2="150" stroke={NAVY} strokeWidth="1" opacity="0.3" vectorEffect="non-scaling-stroke" />
       {bars.map((h, i) => (
         <motion.rect
           key={i}
@@ -54,17 +59,55 @@ function IncomeScene() {
           opacity={0.85}
           initial={{ scaleY: 0 }}
           animate={{ scaleY: 1 }}
-          transition={{ delay: 0.15 + i * 0.12, duration: 0.5, ease: "backOut" }}
+          transition={{ delay: 0.1 * i, duration: 0.6, ease: easeOutQuart }}
           style={{ transformBox: "fill-box", transformOrigin: "bottom" }}
         />
       ))}
+
+      {/* callout — sits clearly above the tallest bar with a pointer down to it */}
       <motion.g
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.9, duration: 0.5 }}
+        transition={{ delay: 0.95, duration: 0.5 }}
       >
-        <rect x="118" y="24" width="86" height="26" rx="13" fill="none" stroke={NAVY} strokeWidth="1" />
-        <text x="161" y="41" textAnchor="middle" fill={NAVY} fontFamily="var(--font-inter)" fontSize="12" fontWeight="500">
+        <line
+          x1={tallestX}
+          y1={-2}
+          x2={tallestX}
+          y2={tallestTop - 4}
+          stroke={NAVY}
+          strokeWidth="1"
+          vectorEffect="non-scaling-stroke"
+        />
+        <path
+          d={`M${tallestX - 4} ${tallestTop - 9} L${tallestX} ${tallestTop - 2} L${tallestX + 4} ${tallestTop - 9}`}
+          fill="none"
+          stroke={NAVY}
+          strokeWidth="1"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          vectorEffect="non-scaling-stroke"
+        />
+        <rect
+          x={tallestX - 42}
+          y={-30}
+          width="84"
+          height="24"
+          rx="12"
+          fill="#FAF6EE"
+          stroke="#0A2472"
+          strokeWidth="1"
+          vectorEffect="non-scaling-stroke"
+        />
+        <text
+          x={tallestX}
+          y={-14}
+          textAnchor="middle"
+          fill="#0A2472"
+          fontFamily="var(--font-inter)"
+          fontSize="9"
+          fontWeight="500"
+        >
           4× your income
         </text>
       </motion.g>
