@@ -90,22 +90,23 @@ input[type="number"] {
   appearance: textfield;
 }
 
-/* Ken Burns zoom for the hero photograph */
-@keyframes kenburns {
-  from {
-    transform: scale(1);
+/* Slow float for the hero door */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
   }
-  to {
-    transform: scale(1.08);
+  50% {
+    transform: translateY(-8px);
   }
 }
-.kenburns {
-  animation: kenburns 20s ease-in-out infinite alternate;
+.float {
+  animation: float 6s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .cursor-blink,
-  .kenburns {
+  .float {
     animation: none;
   }
 }
