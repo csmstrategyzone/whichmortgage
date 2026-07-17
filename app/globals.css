@@ -103,6 +103,38 @@ input[type="number"] {
   animation: kenburns 20s ease-in-out infinite alternate;
 }
 
+/* Hero photo fade — bottom-fade on mobile, left-fade into navy on desktop */
+.hero-photo {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    black 0%,
+    black 60%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    black 0%,
+    black 60%,
+    transparent 100%
+  );
+}
+@media (min-width: 768px) {
+  .hero-photo {
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black 25%,
+      black 100%
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black 25%,
+      black 100%
+    );
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .cursor-blink,
   .kenburns {

@@ -47,10 +47,52 @@ export default function HeroScreen({ onStart }: { onStart: () => void }) {
         </div>
       </nav>
 
-      {/* hero split */}
-      <div className="grid flex-1 grid-cols-1 md:min-h-[620px] md:grid-cols-[55%_45%]">
-        {/* LEFT — navy editorial */}
-        <div className="order-2 flex flex-col justify-center px-6 py-14 md:order-1 md:px-[60px] md:py-[70px]">
+      {/* hero — photo fades into the navy background (no hard split) */}
+      <div className="relative flex-1 md:min-h-[620px]">
+        {/* PHOTO — above text on mobile, absolute right on desktop */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3, duration: 0.9 }}
+          className="relative h-[300px] w-full overflow-hidden md:absolute md:right-0 md:top-0 md:h-full md:w-[60%]"
+          style={{
+            background:
+              "linear-gradient(135deg, #E8D5B7 0%, #D9B892 45%, #B88E5D 100%)",
+          }}
+        >
+          <Image
+            src="/hero-couple.jpg"
+            alt="Happy Irish couple at home"
+            fill
+            priority
+            sizes="(max-width: 768px) 100vw, 60vw"
+            className="kenburns hero-photo"
+            style={{ objectFit: "cover" }}
+          />
+          {/* contrast overlay */}
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                "radial-gradient(ellipse at right, transparent 0%, rgba(10,36,114,0.3) 100%)",
+            }}
+          />
+          {/* regulator badge — bottom-right over the photo */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.4, duration: 0.6 }}
+            className="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-full bg-white/92 px-3.5 py-2 backdrop-blur"
+          >
+            <span className="h-2 w-2 rounded-full bg-[#2F9E63]" />
+            <span className="text-[11px] font-medium text-[#0A2472]">
+              Regulated by Central Bank of Ireland
+            </span>
+          </motion.div>
+        </motion.div>
+
+        {/* TEXT — sits over the solid-navy left, above the fading photo */}
+        <div className="relative z-[2] flex flex-col justify-center px-6 py-14 md:min-h-[620px] md:w-[55%] md:px-[60px] md:py-[70px] md:pr-[6%]">
           <motion.p
             {...rise(24, 0.1, 0.7)}
             className="mb-8 italic text-[#F4A574]"
@@ -111,41 +153,6 @@ export default function HeroScreen({ onStart }: { onStart: () => void }) {
             </button>
           </motion.div>
         </div>
-
-        {/* RIGHT — full-bleed photo */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.9 }}
-          className="relative order-1 h-[300px] overflow-hidden md:order-2 md:h-auto"
-          style={{
-            background:
-              "linear-gradient(135deg, #E8D5B7 0%, #D9B892 45%, #B88E5D 100%)",
-          }}
-        >
-          <Image
-            src="/hero-couple.png"
-            alt="Happy Irish couple at home"
-            fill
-            priority
-            sizes="45vw"
-            className="kenburns"
-            style={{ objectFit: "cover" }}
-          />
-
-          {/* regulator badge */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.4, duration: 0.6 }}
-            className="absolute bottom-4 left-4 inline-flex items-center gap-2 rounded-full bg-white/92 px-3.5 py-2 backdrop-blur"
-          >
-            <span className="h-2 w-2 rounded-full bg-[#2F9E63]" />
-            <span className="text-[11px] font-medium text-[#0A2472]">
-              Regulated by Central Bank of Ireland
-            </span>
-          </motion.div>
-        </motion.div>
       </div>
     </section>
   );
