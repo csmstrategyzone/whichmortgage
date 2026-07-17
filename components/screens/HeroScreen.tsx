@@ -1,15 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowRight, Menu } from "lucide-react";
-
-const PHOTOS = [
-  "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=1200&q=85",
-  "https://images.unsplash.com/photo-1595877991389-3c62be2fac2c?w=1200&q=85",
-  "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=85",
-];
 
 const NAV = ["Mortgages", "Switch mortgage", "Schemes", "Guides"];
 
@@ -20,9 +13,6 @@ const rise = (y: number, delay: number, duration: number) => ({
 });
 
 export default function HeroScreen({ onStart }: { onStart: () => void }) {
-  const [idx, setIdx] = useState(0);
-  const [failed, setFailed] = useState(false);
-
   return (
     <section className="flex min-h-dvh w-full flex-col bg-[#0A2472]">
       {/* top nav */}
@@ -128,29 +118,20 @@ export default function HeroScreen({ onStart }: { onStart: () => void }) {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.9 }}
           className="relative order-1 h-[300px] overflow-hidden md:order-2 md:h-auto"
+          style={{
+            background:
+              "linear-gradient(135deg, #E8D5B7 0%, #D9B892 45%, #B88E5D 100%)",
+          }}
         >
-          {failed ? (
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  "linear-gradient(135deg, #E8D5B7 0%, #D9B892 45%, #B88E5D 100%)",
-              }}
-            />
-          ) : (
-            <Image
-              key={idx}
-              src={PHOTOS[idx]}
-              alt="A Georgian front door in Dublin"
-              fill
-              priority
-              sizes="(max-width: 768px) 100vw, 45vw"
-              className="kenburns object-cover"
-              onError={() =>
-                idx < PHOTOS.length - 1 ? setIdx(idx + 1) : setFailed(true)
-              }
-            />
-          )}
+          <Image
+            src="/hero-couple.png"
+            alt="Happy Irish couple at home"
+            fill
+            priority
+            sizes="45vw"
+            className="kenburns"
+            style={{ objectFit: "cover" }}
+          />
 
           {/* regulator badge */}
           <motion.div
