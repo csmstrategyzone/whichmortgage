@@ -1,24 +1,25 @@
 @import "tailwindcss";
 
 /* ============================================================
-   WhichMortgage — "Unlock Your Door"  (locked design)
-   Tailwind v4 @theme → utilities like bg-navy, text-orange
+   WhichMortgage — "Unlock Your Door"
+   Restrained system: navy on cream, Inter everywhere.
+   Orange is reserved for CTAs, the HTB €30k, the hero accent,
+   and the €30k value in the report — nothing else.
    ============================================================ */
 @theme {
-  --color-navy: #06122f; /* deep midnight — dark backgrounds */
-  --color-navy2: #0a2472; /* secondary navy */
+  --color-navy: #06122f; /* headlines, dark backgrounds, everything structural */
   --color-cream: #efe8d9; /* warm paper backgrounds */
-  --color-orange: #f26b1f; /* primary CTA, HTB accent, map fill */
-  --color-blue: #2e5fe8; /* waves, "within reach" markers */
+  --color-orange: #f26b1f; /* CTA + HTB + hero accent ONLY */
+  --color-blue: #2e5fe8; /* sea wave marks only */
   --color-ink: #06122f; /* body text on cream */
   --color-paper: #ffffff;
 
-  --font-serif: var(--font-fraunces);
   --font-sans: var(--font-inter);
+  --font-serif: var(--font-instrument);
 }
 
 :root {
-  --background: #06122f;
+  --background: #efe8d9;
   --foreground: #06122f;
 }
 
@@ -34,20 +35,19 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* Headline base — Fraunces, light, tight tracking */
-.display {
-  font-family: var(--font-serif);
-  font-weight: 300;
-  letter-spacing: -0.035em;
-  line-height: 1.02;
+/* Big Inter headline / number — tight tracking, no serif */
+.h {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.04;
 }
 
-/* Single italic orange accent word inside a headline */
-.em {
+/* The single italic serif accent — hero "unlocked." + report line */
+.serif-italic {
   font-family: var(--font-serif);
   font-style: italic;
   font-weight: 400;
-  color: var(--color-orange);
 }
 
 /* Hairlines */
@@ -55,21 +55,10 @@ body {
   border-color: rgba(6, 18, 47, 0.15);
 }
 .hair-navy {
-  border-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
-/* SVG film grain — feTurbulence 0.85, overlay */
-.grain::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.2;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-/* Blinking orange cursor for the assessment value + typewriter plan */
+/* Blinking navy cursor for inputs + typewriter plan */
 @keyframes blink {
   0%,
   49% {
@@ -82,11 +71,11 @@ body {
 }
 .cursor-blink {
   display: inline-block;
-  width: 3px;
+  width: 2px;
   height: 0.92em;
-  margin-left: 4px;
-  background: var(--color-orange);
-  transform: translateY(4px);
+  margin-left: 3px;
+  background: var(--color-navy);
+  transform: translateY(3px);
   animation: blink 1.05s step-end infinite;
 }
 
@@ -101,8 +90,22 @@ input[type="number"] {
   appearance: textfield;
 }
 
+/* Ken Burns zoom for the hero photograph */
+@keyframes kenburns {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.08);
+  }
+}
+.kenburns {
+  animation: kenburns 20s ease-in-out infinite alternate;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .cursor-blink {
+  .cursor-blink,
+  .kenburns {
     animation: none;
   }
 }

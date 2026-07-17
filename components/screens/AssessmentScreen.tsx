@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
-import Brand from "@/components/Brand";
+import LogoMark from "@/components/LogoMark";
+import QuestionScene from "@/components/QuestionScenes";
 import { type Answers, num } from "@/lib/calc";
 
 interface Props {
@@ -18,7 +19,7 @@ interface Question {
   field: Field;
   kind: "currency" | "bool";
   category: string;
-  label: React.ReactNode;
+  label: string;
   hint: string;
   optional?: boolean;
   chips?: { label: string; value: number }[];
@@ -29,11 +30,7 @@ const QUESTIONS: Question[] = [
     field: "income",
     kind: "currency",
     category: "Your income",
-    label: (
-      <>
-        What do you <span className="em">earn</span> a year?
-      </>
-    ),
+    label: "How much do you earn a year?",
     hint: "Your gross annual salary, before tax.",
     chips: [
       { label: "€30k", value: 30000 },
@@ -47,11 +44,7 @@ const QUESTIONS: Question[] = [
     field: "coApplicantIncome",
     kind: "currency",
     category: "Co-applicant",
-    label: (
-      <>
-        Is anyone <span className="em">buying with you?</span>
-      </>
-    ),
+    label: "Is anyone buying with you?",
     hint: "Add their gross salary. Leave at zero if buying alone.",
     optional: true,
     chips: [
@@ -66,11 +59,7 @@ const QUESTIONS: Question[] = [
     field: "savings",
     kind: "currency",
     category: "Your deposit",
-    label: (
-      <>
-        How much have you <span className="em">saved so far?</span>
-      </>
-    ),
+    label: "How much have you saved?",
     hint: "Everything you can put towards a deposit, including gifts.",
     chips: [
       { label: "€20k", value: 20000 },
@@ -84,11 +73,7 @@ const QUESTIONS: Question[] = [
     field: "propertyPrice",
     kind: "currency",
     category: "Target home",
-    label: (
-      <>
-        What&apos;s the home <span className="em">worth?</span>
-      </>
-    ),
+    label: "What's the home worth?",
     hint: "Roughly what you hope to spend.",
     chips: [
       { label: "€250k", value: 250000 },
@@ -102,22 +87,14 @@ const QUESTIONS: Question[] = [
     field: "newBuild",
     kind: "bool",
     category: "Property type",
-    label: (
-      <>
-        Is it a <span className="em">new-build?</span>
-      </>
-    ),
+    label: "Is it a new-build?",
     hint: "New-builds can unlock the Help to Buy scheme.",
   },
   {
     field: "firstTimeBuyer",
     kind: "bool",
     category: "Your status",
-    label: (
-      <>
-        Are you a <span className="em">first-time buyer?</span>
-      </>
-    ),
+    label: "Are you a first-time buyer?",
     hint: "You've never owned a home, here or abroad.",
   },
 ];
@@ -170,166 +147,162 @@ export default function AssessmentScreen({
   const progress = (i + 1) / QUESTIONS.length;
 
   return (
-    <section
-      ref={captureRef}
-      tabIndex={-1}
-      onKeyDown={onKeyDown}
-      className="relative flex min-h-dvh w-full flex-col bg-cream outline-none"
-    >
-      {/* top bar */}
-      <header className="mx-auto flex w-full max-w-4xl items-center justify-between px-6 py-6">
-        <Brand tone="dark" />
-        <div className="flex items-center gap-4">
-          <span className="hidden text-[12px] text-ink/55 sm:inline">
-            Question {i + 1} of {QUESTIONS.length}
-          </span>
-          <div className="h-[3px] w-[140px] overflow-hidden rounded-full bg-ink/10">
-            <motion.div
-              className="h-full rounded-full bg-orange"
-              animate={{ width: `${progress * 100}%` }}
-              transition={{ duration: 0.4, ease: "easeOut" }}
-            />
+    <section className="flex min-h-dvh w-full flex-col bg-cream md:flex-row">
+      {/* LEFT — content (55%) */}
+      <div
+        ref={captureRef}
+        tabIndex={-1}
+        onKeyDown={onKeyDown}
+        className="flex w-full flex-col outline-none md:w-[55%]"
+      >
+        <header className="flex items-center justify-between px-6 py-6 md:px-12">
+          <LogoMark tone="dark" />
+          <div className="flex items-center gap-3">
+            <span className="text-[12px] text-ink/55">
+              Question {i + 1} of {QUESTIONS.length}
+            </span>
+            <div className="h-[3px] w-[120px] overflow-hidden rounded-full bg-ink/10">
+              <motion.div
+                className="h-full rounded-full bg-navy"
+                animate={{ width: `${progress * 100}%` }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+              />
+            </div>
           </div>
-          <button className="text-[12px] text-ink/55 transition-colors hover:text-ink">
-            Save and exit
-          </button>
-        </div>
-      </header>
+        </header>
 
-      {/* question body */}
-      <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center px-6 pb-24">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            transition={{ duration: 0.35, ease: "easeOut" }}
-          >
-            <p className="mb-4 text-[13px] font-normal text-orange">
-              {q.category}
-              {q.optional && (
-                <span className="text-ink/40"> · optional</span>
-              )}
-            </p>
-
-            <h2
-              className="display text-ink"
-              style={{ fontSize: "clamp(34px, 6vw, 54px)" }}
+        <div className="flex flex-1 flex-col justify-center px-6 pb-24 md:px-12 lg:px-16">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -16 }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
+              className="max-w-lg"
             >
-              {q.label}
-            </h2>
+              <p className="mb-3 text-[12px] font-medium text-navy/60">
+                {q.category}
+                {q.optional && (
+                  <span className="text-ink/35"> · optional</span>
+                )}
+              </p>
 
-            {q.kind === "currency" ? (
-              <>
-                {/* value card */}
-                <div
-                  onClick={() => captureRef.current?.focus()}
-                  className="mt-8 cursor-text rounded-[8px] border bg-white px-6 py-5 hair-cream"
-                  style={{ boxShadow: "0 0 0 3px rgba(242,107,31,0.12)" }}
-                >
-                  <p className="mb-1 text-[12px] font-normal text-ink/50">
-                    Amount in euro
-                  </p>
-                  <p
-                    className="flex items-center font-serif font-light text-ink"
-                    style={{ fontSize: "44px", letterSpacing: "-0.02em" }}
+              <h2
+                className="h text-navy"
+                style={{ fontSize: "clamp(30px, 4.6vw, 44px)" }}
+              >
+                {q.label}
+              </h2>
+
+              {q.kind === "currency" ? (
+                <>
+                  <div
+                    onClick={() => captureRef.current?.focus()}
+                    className="mt-8 cursor-text border-b-2 border-navy/25 pb-2 transition-colors focus-within:border-navy"
                   >
-                    €{num(answers[q.field] as number)}
-                    <span className="cursor-blink" />
-                  </p>
-                </div>
+                    <span
+                      className="flex items-center text-navy"
+                      style={{ fontSize: "36px", fontWeight: 400, letterSpacing: "-0.01em" }}
+                    >
+                      €{num(answers[q.field] as number)}
+                      <span className="cursor-blink" />
+                    </span>
+                  </div>
 
-                <p className="mt-3 text-[13px] text-ink/55">{q.hint}</p>
+                  <p className="mt-3 text-[13px] text-ink/55">{q.hint}</p>
 
-                {/* quick-pick chips */}
-                {q.chips && (
-                  <div className="mt-5 flex flex-wrap gap-2.5">
-                    {q.chips.map((chip) => {
-                      const selected =
-                        (answers[q.field] as number) === chip.value;
+                  {q.chips && (
+                    <div className="mt-6 flex flex-wrap gap-2.5">
+                      {q.chips.map((chip) => {
+                        const selected =
+                          (answers[q.field] as number) === chip.value;
+                        return (
+                          <button
+                            key={chip.label}
+                            onClick={() => {
+                              setField(q.field, chip.value);
+                              captureRef.current?.focus();
+                            }}
+                            className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-[14px] transition-all ${
+                              selected
+                                ? "border-navy bg-navy text-cream"
+                                : "border-ink/20 text-ink/70 hover:border-ink/40"
+                            }`}
+                          >
+                            {selected && <Check className="h-3.5 w-3.5" />}
+                            {chip.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <div className="mt-8 grid grid-cols-2 gap-4">
+                    {[
+                      { label: "Yes", v: true },
+                      { label: "No", v: false },
+                    ].map(({ label, v }) => {
+                      const active = (answers[q.field] as boolean) === v;
                       return (
                         <button
-                          key={chip.label}
-                          onClick={() => {
-                            setField(q.field, chip.value);
-                            captureRef.current?.focus();
-                          }}
-                          className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-[14px] transition-colors ${
-                            selected
-                              ? "border-orange bg-orange/10 text-orange"
-                              : "border-ink/15 text-ink/70 hover:border-ink/35"
+                          key={label}
+                          onClick={() => setField(q.field, v)}
+                          className={`rounded-[8px] border px-6 py-10 text-left transition-all hover:-translate-y-0.5 hover:shadow-[0_16px_30px_-18px_rgba(6,18,47,0.5)] ${
+                            active
+                              ? "border-navy bg-navy text-cream"
+                              : "border-ink/20 bg-cream text-navy"
                           }`}
                         >
-                          {selected && <Check className="h-3.5 w-3.5" />}
-                          {chip.label}
+                          <span
+                            className="h block"
+                            style={{ fontSize: "32px" }}
+                          >
+                            {label}
+                          </span>
                         </button>
                       );
                     })}
                   </div>
-                )}
-              </>
-            ) : (
-              <>
-                <div className="mt-8 grid grid-cols-2 gap-4">
-                  {[
-                    { label: "Yes", v: true },
-                    { label: "No", v: false },
-                  ].map(({ label, v }) => {
-                    const active = (answers[q.field] as boolean) === v;
-                    return (
-                      <button
-                        key={label}
-                        onClick={() => setField(q.field, v)}
-                        className={`rounded-[8px] border px-6 py-10 text-left transition-all ${
-                          active
-                            ? "border-orange bg-orange/10"
-                            : "border-ink/15 bg-white hover:border-ink/35"
-                        }`}
-                      >
-                        <span
-                          className="display block text-ink"
-                          style={{ fontSize: "32px" }}
-                        >
-                          {label}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-                <p className="mt-4 text-[13px] text-ink/55">{q.hint}</p>
-              </>
-            )}
-          </motion.div>
-        </AnimatePresence>
-      </div>
+                  <p className="mt-4 text-[13px] text-ink/55">{q.hint}</p>
+                </>
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </div>
 
-      {/* bottom bar */}
-      <footer className="sticky bottom-0 border-t bg-cream/90 backdrop-blur hair-cream">
-        <div className="mx-auto flex w-full max-w-2xl items-center justify-between px-6 py-4">
-          <button
-            onClick={back}
-            disabled={i === 0}
-            className="inline-flex items-center gap-1.5 text-[14px] text-ink/60 transition-colors enabled:hover:text-ink disabled:opacity-30"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back
-          </button>
-          <div className="flex items-center gap-4">
-            <span className="hidden text-[12px] text-ink/45 sm:inline">
-              Press ↵ to continue
-            </span>
+        {/* bottom bar */}
+        <footer className="sticky bottom-0 border-t bg-cream/90 backdrop-blur hair-cream">
+          <div className="flex items-center justify-between px-6 py-4 md:px-12">
+            <button
+              onClick={back}
+              disabled={i === 0}
+              className="inline-flex items-center gap-1.5 text-[14px] text-ink/60 transition-colors enabled:hover:text-ink disabled:opacity-30"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </button>
             <button
               onClick={next}
               disabled={!canAdvance}
-              className="inline-flex items-center gap-2 rounded-[6px] bg-navy px-6 py-3 text-[14px] font-medium text-white transition enabled:hover:bg-navy2 disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex items-center gap-2 rounded-[6px] bg-navy px-6 py-3 text-[14px] font-medium text-cream transition enabled:hover:bg-[#0b1e4d] disabled:cursor-not-allowed disabled:opacity-40"
             >
               {i === QUESTIONS.length - 1 ? "See my report" : "Continue"}
               <ArrowRight className="h-4 w-4" />
             </button>
           </div>
-        </div>
-      </footer>
+        </footer>
+      </div>
+
+      {/* RIGHT — ambient scene (45%) */}
+      <div
+        className="relative hidden items-center justify-center border-l px-10 md:flex md:w-[45%] hair-cream"
+        style={{ background: "rgba(6,18,47,0.035)" }}
+      >
+        <QuestionScene index={i} answers={answers} />
+      </div>
     </section>
   );
 }

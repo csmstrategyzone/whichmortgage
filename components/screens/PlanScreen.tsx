@@ -80,10 +80,10 @@ export default function PlanScreen({
           className="rounded-[8px] border bg-white p-8 shadow-[0_20px_60px_-30px_rgba(6,18,47,0.3)] hair-cream sm:p-10"
         >
           <h2
-            className="display text-navy"
+            className="h text-navy"
             style={{ fontSize: "clamp(30px, 5vw, 44px)" }}
           >
-            Your 30-day <span className="em">plan.</span>
+            Your 30-day plan
           </h2>
 
           <div className="mt-6 min-h-[180px] whitespace-pre-wrap text-[16px] leading-relaxed text-ink/80">
