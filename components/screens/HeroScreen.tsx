@@ -54,11 +54,7 @@ export default function HeroScreen({ onStart }: { onStart: () => void }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.9 }}
-          className="relative h-[300px] w-full overflow-hidden md:absolute md:right-0 md:top-0 md:h-full md:w-[65%]"
-          style={{
-            background:
-              "linear-gradient(135deg, #E8D5B7 0%, #D9B892 45%, #B88E5D 100%)",
-          }}
+          className="relative h-[300px] w-full overflow-hidden md:absolute md:right-0 md:top-0 md:h-full md:w-[75%]"
         >
           <Image
             src="/hero-couple.jpg"
@@ -66,13 +62,14 @@ export default function HeroScreen({ onStart }: { onStart: () => void }) {
             fill
             priority={true}
             quality={95}
-            sizes="(max-width: 768px) 100vw, 70vw"
+            sizes="(max-width: 768px) 100vw, 75vw"
             className="kenburns hero-photo"
             style={{ objectFit: "cover" }}
           />
-          {/* contrast overlay */}
+          {/* contrast overlay — masked with the same fade so it can't
+              create a hard boundary against the navy */}
           <div
-            className="pointer-events-none absolute inset-0"
+            className="hero-photo pointer-events-none absolute inset-0"
             style={{
               background:
                 "radial-gradient(ellipse at right, transparent 0%, rgba(10,36,114,0.3) 100%)",
@@ -93,7 +90,7 @@ export default function HeroScreen({ onStart }: { onStart: () => void }) {
         </motion.div>
 
         {/* TEXT — sits over the solid-navy left, above the fading photo */}
-        <div className="relative z-[2] flex flex-col justify-center px-6 py-14 md:min-h-[620px] md:w-[55%] md:px-[60px] md:py-[70px] md:pr-[6%]">
+        <div className="relative z-[2] flex flex-col justify-center bg-transparent px-6 py-14 md:min-h-[620px] md:w-[55%] md:px-[60px] md:py-[70px] md:pr-[8%]">
           <motion.p
             {...rise(24, 0.1, 0.7)}
             className="mb-8 italic text-[#F4A574]"
