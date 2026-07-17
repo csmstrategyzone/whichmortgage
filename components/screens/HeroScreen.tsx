@@ -90,7 +90,7 @@ export default function HeroScreen({ onStart }: { onStart: () => void }) {
         </motion.div>
 
         {/* TEXT — sits over the solid-navy left, above the fading photo */}
-        <div className="relative z-[2] flex flex-col justify-center bg-transparent px-6 py-14 md:min-h-[620px] md:w-[55%] md:px-[60px] md:py-[70px] md:pr-[8%]">
+        <div className="relative z-[2] flex flex-col justify-center bg-transparent px-6 py-14 md:min-h-[620px] md:w-[60%] md:px-[60px] md:py-[70px] md:pr-[4%]">
           <motion.p
             {...rise(24, 0.1, 0.7)}
             className="mb-8 italic text-[#F4A574]"
@@ -109,22 +109,22 @@ export default function HeroScreen({ onStart }: { onStart: () => void }) {
           >
             <motion.span
               {...rise(24, 0.25, 0.8)}
-              className="block text-orange"
-              style={{ fontWeight: 500, fontSize: "clamp(44px, 5.4vw, 76px)" }}
+              className="block text-orange md:whitespace-nowrap"
+              style={{ fontWeight: 500, fontSize: "clamp(42px, 4.6vw, 60px)" }}
             >
               You don&apos;t need to
             </motion.span>
             <motion.span
               {...rise(24, 0.4, 0.8)}
-              className="block text-orange"
-              style={{ fontWeight: 500, fontSize: "clamp(44px, 5.4vw, 76px)" }}
+              className="block text-orange md:whitespace-nowrap"
+              style={{ fontWeight: 500, fontSize: "clamp(42px, 4.6vw, 60px)" }}
             >
               know the schemes.
             </motion.span>
             <motion.span
               {...rise(24, 0.6, 0.9)}
-              className="block italic text-[#2E5FE8]"
-              style={{ fontWeight: 500, fontSize: "clamp(48px, 6vw, 84px)" }}
+              className="block italic text-[#2E5FE8] md:whitespace-nowrap"
+              style={{ fontWeight: 500, fontSize: "clamp(44px, 5vw, 66px)" }}
             >
               We do.
             </motion.span>
