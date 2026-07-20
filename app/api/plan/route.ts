@@ -14,13 +14,19 @@ interface PlanRequest {
   htbAmount: number;
 }
 
-const SYSTEM_PROMPT =
-  "You are an Irish mortgage coach for WhichMortgage. Write two warm, direct " +
-  "paragraphs. Paragraph 1: summarise what they can afford in plain terms and " +
-  "name which Irish schemes they qualify for (Help to Buy, First Home Scheme, " +
-  "Fresh Start). Paragraph 2: three specific actionable steps for the next 30 " +
-  "days. Only reference Irish rules and providers. Warm broker tone, no fluff, " +
-  "no disclaimers.";
+const SYSTEM_PROMPT = `You are an expert Irish mortgage coach writing on behalf of WhichMortgage, an Irish mortgage brokerage regulated by the Central Bank of Ireland. Your job is to write a warm, direct 2-paragraph personalised plan for a first-time buyer.
+
+CRITICAL RULES — NEVER BREAK THESE:
+1. NEVER tell the user to contact banks or lenders directly by name (AIB, Bank of Ireland, Permanent TSB, PTSB, Haven, Avant Money, Finance Ireland, ICS, etc). WhichMortgage compares the whole market on the user's behalf — that's the entire value.
+2. When you would otherwise say 'contact X bank' or 'go to Y lender', instead say 'WhichMortgage will approach [description of lender type] on your behalf' — e.g. 'WhichMortgage will compare the best first-time buyer rates across the market for you' or 'your WhichMortgage broker will handle the Approval in Principle applications with multiple lenders in parallel'.
+3. Every action step should either be something the USER does themselves (documents, savings, credit report, gift letters) OR something WHICHMORTGAGE does for them (comparing rates, submitting applications, negotiating). Never direct-to-lender.
+4. Reference Irish schemes correctly: Help to Buy (new-builds only, up to €30k), First Home Scheme (new-builds only, up to 30% government equity), Fresh Start (for previous homeowners who've lost a home to bankruptcy/insolvency). Only mention schemes the user actually qualifies for.
+5. Tone: warm, direct, no fluff, no disclaimers, no 'please consult a financial advisor' hedging. WhichMortgage IS the advisor.
+
+STRUCTURE:
+Paragraph 1 (Your Mortgage Picture): 3-4 sentences summarising what they can afford, which schemes apply (or don't), and where the gap is between their buying power and their target.
+
+Paragraph 2 (Your Next 30 Days): A numbered list of 4-5 concrete actions for the next 30 days. Each action is either something the user does OR something WhichMortgage does on their behalf. Never 'contact bank X directly'.`;
 
 const euro = (n: number) =>
   new Intl.NumberFormat("en-IE", {
@@ -100,27 +106,59 @@ function streamText(text: string) {
 }
 
 function fallbackPlan(d: PlanRequest): string {
-  const schemes = [
-    d.htbAmount > 0 && "Help to Buy",
-    d.firstTimeBuyer && "the First Home Scheme",
-    "Fresh Start",
-  ].filter(Boolean);
+  // Scheme eligibility — both Help to Buy and the First Home Scheme are
+  // new-build only; Fresh Start is for previous owners, not first-time buyers.
+  const htbEligible = d.newBuild && d.firstTimeBuyer && d.htbAmount > 0;
+  const fhsEligible = d.newBuild && d.firstTimeBuyer;
+  // Fresh Start turns on circumstances we don't collect (bankruptcy, insolvency,
+  // separation), so we never assert it — the broker confirms it instead.
+  const freshStartPossible = !d.firstTimeBuyer;
 
-  return (
-    `With ${euro(d.buyingPower)} of buying power, a home around ${euro(
-      d.propertyPrice
-    )} is well within reach — your ${euro(
+  const schemes = [
+    htbEligible && "Help to Buy",
+    fhsEligible && "the First Home Scheme",
+  ].filter(Boolean) as string[];
+
+  const gap = (d.propertyPrice || 0) - (d.buyingPower || 0);
+
+  const picture =
+    `With ${euro(d.buyingPower)} of buying power, your ${euro(
       d.deposit
     )} deposit and four times your income do the heavy lifting` +
-    (d.htbAmount > 0
+    (htbEligible
       ? `, and your ${euro(d.htbAmount)} Help to Buy refund tops it off`
       : "") +
-    `. As a first-time buyer you can look at ${schemes.join(
-      ", "
-    )} to stretch further.\n\n` +
-    `Over the next 30 days: 1) Gather six months of payslips and bank statements so a broker can confirm your figures. 2) Get Approval in Principle from two Irish lenders to lock in your borrowing power. 3) ` +
-    (d.newBuild && d.firstTimeBuyer
-      ? `Register for Help to Buy on Revenue.ie so your €30,000 is ready when you sign.`
-      : `Start viewing homes in your budget and line up a solicitor for when you bid.`)
+    `. ` +
+    (gap > 0
+      ? `A home around ${euro(d.propertyPrice)} leaves a gap of ${euro(
+          gap
+        )} to close, so the plan below is about closing it. `
+      : `A home around ${euro(
+          d.propertyPrice
+        )} is well within reach. `) +
+    (schemes.length
+      ? `You qualify for ${schemes.join(" and ")}, which stretches you further.`
+      : freshStartPossible
+        ? `Help to Buy and the First Home Scheme are new-build only, so they don't apply here — and if you previously lost a home through insolvency or separation, your broker will confirm whether Fresh Start puts you back on first-time buyer terms.`
+        : `The government schemes are new-build only, so they don't apply here — the numbers below stand on their own.`);
+
+  const steps = [
+    `Gather six months of payslips and bank statements so we can confirm your figures.`,
+    `Pull your free Central Credit Register report and flag anything unexpected to us.`,
+    d.firstTimeBuyer
+      ? `Your WhichMortgage broker will compare the best first-time buyer rates across the whole market for you.`
+      : `Your WhichMortgage broker will compare the best rates across the whole market for you.`,
+    `We'll submit your Approval in Principle applications to multiple lenders in parallel and negotiate on your behalf.`,
+    htbEligible
+      ? `Register for Help to Buy on Revenue.ie so your ${euro(
+          d.htbAmount
+        )} is ready when you sign.`
+      : `Line up a solicitor now so you can move fast when you bid.`,
+  ];
+
+  return (
+    `Your Mortgage Picture\n\n${picture}\n\n` +
+    `Your Next 30 Days\n\n` +
+    steps.map((s, i) => `${i + 1}) ${s}`).join("\n")
   );
 }
