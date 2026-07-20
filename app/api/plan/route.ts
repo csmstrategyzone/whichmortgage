@@ -22,11 +22,69 @@ CRITICAL RULES — NEVER BREAK THESE:
 3. Every action step should either be something the USER does themselves (documents, savings, credit report, gift letters) OR something WHICHMORTGAGE does for them (comparing rates, submitting applications, negotiating). Never direct-to-lender.
 4. Reference Irish schemes correctly: Help to Buy (new-builds only, up to €30k), First Home Scheme (new-builds only, up to 30% government equity), Fresh Start (for previous homeowners who've lost a home to bankruptcy/insolvency). Only mention schemes the user actually qualifies for.
 5. Tone: warm, direct, no fluff, no disclaimers, no 'please consult a financial advisor' hedging. WhichMortgage IS the advisor.
+6. Output PLAIN TEXT ONLY. Never use markdown syntax. That means:
+   - NO ## or ### headers — write section titles as plain lines
+   - NO **bold** — write emphasis in plain prose
+   - NO *italics*, backticks, or other markdown
+   - NO em-dashes wrapped in bold — just use commas or plain em-dashes
+   - For section headings, just write the heading on its own line in plain text (like 'Your Mortgage Picture' or 'Your Next 30 Days')
+   - For the numbered action list, just use '1. ', '2. ', '3. ' followed by plain text — no bold on the first phrase
 
 STRUCTURE:
 Paragraph 1 (Your Mortgage Picture): 3-4 sentences summarising what they can afford, which schemes apply (or don't), and where the gap is between their buying power and their target.
 
 Paragraph 2 (Your Next 30 Days): A numbered list of 4-5 concrete actions for the next 30 days. Each action is either something the user does OR something WhichMortgage does on their behalf. Never 'contact bank X directly'.`;
+
+/**
+ * Safety net for rule 6 — strip markdown even if the model slips. The plan is
+ * rendered as raw pre-wrapped text, so any syntax that survives reaches the
+ * user as literal ** and ## characters.
+ *
+ * `atLineStart` says whether `text` begins at a real line start; when it starts
+ * mid-line, a leading '#' is prose, not a heading.
+ */
+function stripMarkdown(text: string, atLineStart = true): string {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, "$1")
+    .replace(/\*(.+?)\*/g, "$1")
+    .replace(/`(.+?)`/g, "$1")
+    .replace(atLineStart ? /^#{1,6}\s+/gm : /(?<=\n)#{1,6}\s+/g, "");
+}
+
+/**
+ * How much of `buf` can be sanitised and flushed right now.
+ *
+ * Markdown delimiters here are paired and never span a line, but a stream chunk
+ * can land mid-token ('**bo' + 'ld**') — stripping each delta on its own would
+ * miss those entirely. Everything from the first still-open delimiter is held
+ * back until its closer arrives.
+ */
+function flushableLength(buf: string): number {
+  const lineStart = buf.lastIndexOf("\n") + 1;
+  const line = buf.slice(lineStart);
+
+  // A heading marker whose text hasn't arrived yet.
+  if (/^#{1,6}\s*$/.test(line)) return lineStart;
+
+  let cut = buf.length;
+  for (const runs of [[...line.matchAll(/\*+/g)], [...line.matchAll(/`+/g)]]) {
+    if (!runs.length) continue;
+    const last = runs[runs.length - 1];
+    const touchesEnd = last.index + last[0].length === line.length;
+
+    let hold = -1;
+    if (runs.length % 2 === 1) {
+      // Unmatched opener — hold from it until its closer arrives.
+      hold = last.index;
+    } else if (touchesEnd && runs.length >= 2) {
+      // Closer sitting at the buffer edge may still be growing ('*' -> '**'),
+      // so hold from its opener — flushing the opener alone would leak syntax.
+      hold = runs[runs.length - 2].index;
+    }
+    if (hold >= 0) cut = Math.min(cut, lineStart + hold);
+  }
+  return cut;
+}
 
 const euro = (n: number) =>
   new Intl.NumberFormat("en-IE", {
@@ -53,7 +111,7 @@ export async function POST(request: Request) {
 
   // Graceful fallback so the demo works before a key is pasted in .env.local
   if (!apiKey) {
-    return streamText(fallbackPlan(data));
+    return streamText(stripMarkdown(fallbackPlan(data)));
   }
 
   const client = new Anthropic({ apiKey });
@@ -68,14 +126,26 @@ export async function POST(request: Request) {
           system: SYSTEM_PROMPT,
           messages: [{ role: "user", content: userMessage }],
         });
+        let buf = "";
+        let atLineStart = true;
         stream.on("text", (delta) => {
-          controller.enqueue(encoder.encode(delta));
+          buf += delta;
+          const n = flushableLength(buf);
+          if (n === 0) return;
+          const raw = buf.slice(0, n);
+          buf = buf.slice(n);
+          const out = stripMarkdown(raw, atLineStart);
+          atLineStart = raw.endsWith("\n");
+          if (out) controller.enqueue(encoder.encode(out));
         });
         await stream.finalMessage();
+        if (buf) {
+          controller.enqueue(encoder.encode(stripMarkdown(buf, atLineStart)));
+        }
         controller.close();
       } catch {
         // Fall back to a templated plan on any API error
-        controller.enqueue(encoder.encode(fallbackPlan(data)));
+        controller.enqueue(encoder.encode(stripMarkdown(fallbackPlan(data))));
         controller.close();
       }
     },
@@ -159,6 +229,6 @@ function fallbackPlan(d: PlanRequest): string {
   return (
     `Your Mortgage Picture\n\n${picture}\n\n` +
     `Your Next 30 Days\n\n` +
-    steps.map((s, i) => `${i + 1}) ${s}`).join("\n")
+    steps.map((s, i) => `${i + 1}. ${s}`).join("\n")
   );
 }
